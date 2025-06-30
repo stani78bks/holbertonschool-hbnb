@@ -58,7 +58,7 @@ In this part we implemented the Business Logic layer and the API Endpoints.
 
         // 400 Invalid input data
 
-        Testing Email already registered:
+        testing Email already registered:
 
             curl -X POST "http://127.0.0.1:5000/api/v1/users/" -H "Content-Type: application/json" -d '{
                 "first_name": "John",
