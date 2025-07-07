@@ -3,6 +3,7 @@
 """
 from flask_restx import Namespace, Resource, fields
 from app.services.facade import facade
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('places', description='Place operations')
 
@@ -33,7 +34,6 @@ place_model = api.model('Place', {
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
-    'owner_id': fields.String(required=True, description='ID of the owner'),
     'amenities': fields.List(fields.String, required=False, description="List of amenities ID's"),
     #'reviews': fields.List(fields.Nested(review_model), description='List of reviews')
 })
@@ -45,8 +45,10 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new place"""
-        # Placeholder for the logic to register a new place
+        # Placeholder for the logic to regi6ster a new place
+        current_user = get_jwt_identity()
         place_data = api.payload
+        place_data['owner_id'] = current_user['id']
 
         try:
             new_place = facade.create_place(place_data)
@@ -108,8 +110,18 @@ class PlaceResource(Resource):
     def put(self, place_id):
         """Update a place's information"""
         # Placeholder for the logic to update a place by ID
-        place_data = api.payload
+        current_user = get_jwt_identity()
+        place = facade.get_place(place_id)
 
+        if not place:
+            return {'error': 'Place not found'}, 404
+
+	if place.owner_id != current_user['id']:
+	    return {'error': 'Unauthorized action'}, 403
+
+
+        place_data = api.payload
+        
         try:
             updated_place = facade.update_place(place_id, place_data)
         except ValueError as error:
