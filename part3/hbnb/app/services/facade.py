@@ -12,18 +12,36 @@ from datetime import datetime
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        self.user_repo = SQLAlchemyRepository(User)
+        self.place_repo = SQLAlchemyRepository(Place)
+        self.review_repo = SQLAlchemyRepository(Review)
+        self.amenity_repo = SQLAlchemyRepository(Amenity)
 
     def create_user(self, user_data):
-        # Placeholder method for creating a user
-        user = User(**user_data, id=str(uuid.uuid4()), created_at=datetime.now(), updated_at=datetime.now())
-        # User.check(user_data)
+        """Crée un utilisateur avec mot de passe haché."""
+
+        # Valide les champs attendus
         User.validate_request_data(user_data)
+
+        # Sépare le mot de passe pour le hacher ensuite
+        password = user_data.pop('password')
+
+        # Création de l’objet User (sans mot de passe pour l’instant)
+        user = User(
+            **user_data,
+            id=str(uuid.uuid4()),
+            created_at=datetime.now(),
+            updated_at=datetime.now()
+        )
+
+        # Hachage du mot de passe
+        user.hash_password(password)
+
+        # Ajout dans le repository
         self.user_repo.add(user)
+
         return user
+
 
     def get_user(self, user_id):
         # Placeholder method for fetching a user by ID

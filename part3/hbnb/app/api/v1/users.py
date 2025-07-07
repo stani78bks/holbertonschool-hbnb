@@ -19,22 +19,44 @@ class UserList(Resource):
     @api.response(201, 'User successfully created')
     @api.response(400, 'Email already registered')
     @api.response(400, 'Invalid input data')
+
+
+    api.response(201, 'User successfully registered')
+    @api.response(400, 'Invalid input data or email already registered')
     def post(self):
         """Register a new user"""
         user_data = api.payload
 
-        # Simulate email uniqueness check (to be replaced by real validation with persistence)
-        existing_user = facade.get_user_by_email(user_data['email'])
+        required_fields = ['first_name', 'last_name', 'email', 'password']
+        if not all(field in user_data for field in required_fields):
+            return {'error': 'Missing required fields'}, 400
+
+        # Vérification de l'unicité de l'email
+        existing_user = facade.get_user_by_email(user_d8ata['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 400
 
         try:
+            # Hachage du mot de passe
+            password = user_data.pop('password')  # on le retire temporairement du dict
             new_user = facade.create_user(user_data)
+            new_user.hash_password(password)  # hachage via méthode du modèle
+
+            # Sauvegarde de l'utilisateur avec le mot de passe haché
+            facade.save_user(new_user)
+
+            return {
+                'id': new_user.id,
+                'first_name': new_user.first_name,
+                'last_name': new_user.last_name,
+                'email': new_user.email
+            }, 201
+
         except ValueError as error:
             return {'error': 'Invalid input data'}, 400
-        return {'id': new_user.id, 'first_name': new_user.first_name, 'last_name': new_user.last_name, 'email': new_user.email}, 201
 
-    @api.response(200, 'OK')
+
+        @api.response(200, 'OK')
     def get(self):
         """Retrieve list of Users"""
         list_of_users = facade.get_all_users()
@@ -83,3 +105,5 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         facade.delete_user(user_id)
         return {"message": "User deleted successfully"}, 200
+
+
