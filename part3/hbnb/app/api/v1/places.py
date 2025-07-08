@@ -137,6 +137,7 @@ class PlaceResource(Resource):
     def delete(self, place_id):
         """Delete a place"""
         # Placeholder for the logic to delete a place
+	current_user_id = get_jwt_identity()
         place = facade.get_place(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
