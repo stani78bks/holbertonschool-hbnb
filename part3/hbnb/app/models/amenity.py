@@ -1,3 +1,4 @@
+
 #!/usr/bin/python3
 """Module amenity business logic class
 """
@@ -10,9 +11,18 @@ class Amenity(BaseModel):
     # Define the fields for the Amenity model
     name = db.Column(db.String(255), nullable=False)
 
-    def save(self):
-        """Update the updated_at timestamp whenever the object is modified"""
-        super().save()
+from app.persistence.database import db
+import uuid
+from datetime import datetime
+
+class Amenity(db.Model):
+    __tablename__ = "amenities"
+
+    id = db.Column(db.String(60), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = db.Column(db.String(128), nullable=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def delete(self):
         """Delete the amenity from the database"""

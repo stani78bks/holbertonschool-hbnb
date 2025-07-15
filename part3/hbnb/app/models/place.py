@@ -1,13 +1,14 @@
-#!/usr/bin/python3
-"""Module place business logic class
-"""
+from app.persistence.database import db
 import uuid
 from datetime import datetime
+<<<<<<< HEAD
 from .base_model import BaseModel
 from .user import User
 from .amenity import Amenity
 from app.models.db_app import db
 
+class Place(db.Model):
+    __tablename__ = "places"
 
 class Place(BaseModel):
     __tablename__ = 'places'  # Specify the table name for the Place model
@@ -53,3 +54,15 @@ class Place(BaseModel):
             elif key == "longitude":
                 if value < -180 or value > 180:
                     raise ValueError(f"longitude: is incorrect, between -180 -> 180.")
+
+    id = db.Column(db.String(60), primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    owner_id = db.Column(db.String(60), nullable=False)  # lien vers User.id (relation à venir)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+

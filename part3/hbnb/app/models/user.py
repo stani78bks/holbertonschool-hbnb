@@ -1,14 +1,13 @@
-#!/usr/bin/python3
-"""Module user business logic class
-"""
-import uuid
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from .base_model import BaseModel
 import re
 from app.models.db_app import db
 
-regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+db = SQLAlchemy()
 
+class User(db.Model):
+    __tablename__ = 'users'
 
 class User(BaseModel):
     __tablename__ = 'users'  # Specify the table name for the User model
@@ -46,3 +45,20 @@ class User(BaseModel):
                 except ValueError:
                     return ValueError
                 return data
+
+    id = db.Column(db.String(60), primary_key=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.email = email.lower()
+        self.password = password  # hashed
+        self.is_admin = is_admin

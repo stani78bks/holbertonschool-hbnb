@@ -1,27 +1,8 @@
-#!/usr/bin/python3
-"""Module app importable package
-"""
-from flask import Flask
-from flask_restx import Api
-from app.api.v1.users import api as users_ns
-from app.api.v1.places import api as places_ns
-from app.api.v1.amenities import api as amenities_ns
-from app.api.v1.reviews import api as reviews_ns
+from app.routes.place_routes import place_bp
+from app.routes.review_routes import review_bp
+from app.routes.amenity_routes import amenity_bp
 
-def create_app():
-    app = Flask(__name__)
-    api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API')
+app.register_blueprint(place_bp, url_prefix="/api/places")
+app.register_blueprint(review_bp, url_prefix="/api/reviews")
+app.register_blueprint(amenity_bp, url_prefix="/api/amenities")
 
-    # Register the users namepsace
-    api.add_namespace(users_ns, path='/api/v1/users')
-
-    # Register the places namespace
-    api.add_namespace(places_ns, path='/api/v1/places')
-
-    # Register the amenities namespace
-    api.add_namespace(amenities_ns, path='/api/v1/amenities')
-
-    # Register the reviews namespace
-    api.add_namespace(reviews_ns, path='/api/v1/reviews')
-
-    return app

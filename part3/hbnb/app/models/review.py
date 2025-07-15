@@ -11,28 +11,24 @@ class Review(BaseModel):
     text = db.Column(db.String(1024), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
 
-    def save(self):
-        """Update the updated_at timestamp whenever the object is modified"""
-        super().save()
+from app.persistence.database import db
+import uuid
+from datetime import datetime
+
+class Review(db.Model):
+    __tablename__ = "reviews"
+
+    id = db.Column(db.String(60), primary_key=True, default=lambda: str(uuid.uuid4()))
+    text = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)  # par ex. note 1-5
+
+    user_id = db.Column(db.String(60), nullable=False)   # relation vers User.id (à faire plus tard)
+    place_id = db.Column(db.String(60), nullable=False)  # relation vers Place.id (à faire plus tard)
 
     def delete(self):
         """Delete the review from the database"""
         super().delete()
 
-    @staticmethod
-    def validate_request_data(data: dict):
-        for key in data.keys():
-            value = data[key]
-            if key == 'text':
-                if  not isinstance(value, str) or len(value) < 1:
-                    raise ValueError(f'Text must not be empty')
-            elif key == 'rating':
-                if isinstance(value, int) and (value > 5 or value < 1):
-                    raise ValueError(f'Rating must be between 1 and 5')
-            elif key == 'place_id':
-                if isinstance(value, str) and len(value) < 1:
-                    raise ValueError(f'Place ID must be a non-empty string')
-            elif key == 'user_id':
-                if isinstance(value, str) and len(value) < 1:
-                    raise ValueError(f'User ID must be a non-empty string')
-        return data
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
