@@ -2,22 +2,21 @@
 """Module amenity business logic class
 """
 from .base_model import BaseModel
-
+from app.models.db_app import db
 
 class Amenity(BaseModel):
-    def __init__(self, id, created_at, updated_at, name):
-        super().__init__(id, created_at, updated_at)
-        self.name = name
+    __tablename__ = 'amenities'  # Specify the table name for the Amenity model
+
+    # Define the fields for the Amenity model
+    name = db.Column(db.String(255), nullable=False)
 
     def save(self):
         """Update the updated_at timestamp whenever the object is modified"""
         super().save()
 
-    def update(self, data):
-        """
-        Update the attributes of the object based on the provided dictionary
-        """
-        super().update(data)
+    def delete(self):
+        """Delete the amenity from the database"""
+        super().delete()
 
     @staticmethod
     def validate_request_data(data: dict):

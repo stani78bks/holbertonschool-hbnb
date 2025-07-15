@@ -2,25 +2,22 @@
 """Module review business logic class
 """
 from .base_model import BaseModel
-
+from app.models.db_app import db
 
 class Review(BaseModel):
-    def __init__(self, id, created_at, updated_at, text, rating, place_id, user_id):
-        super().__init__(id, created_at, updated_at)
-        self.text = text
-        self.rating = rating
-        self.place_id = place_id
-        self.user_id = user_id
+    __tablename__ = 'reviews'  # Specify the table name for the Review model
+    
+    # Define the fields for the Review model
+    text = db.Column(db.String(1024), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
 
     def save(self):
         """Update the updated_at timestamp whenever the object is modified"""
         super().save()
 
-    def update(self, data):
-        """
-        Update the attributes of the object based on the provided dictionary
-        """
-        super().update(data)
+    def delete(self):
+        """Delete the review from the database"""
+        super().delete()
 
     @staticmethod
     def validate_request_data(data: dict):

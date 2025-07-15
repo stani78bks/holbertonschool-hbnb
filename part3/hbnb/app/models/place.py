@@ -6,31 +6,19 @@ from datetime import datetime
 from .base_model import BaseModel
 from .user import User
 from .amenity import Amenity
+from app.models.db_app import db
 
 
 class Place(BaseModel):
-    def __init__(self, id, created_at, updated_at, title, description, price, latitude, longitude, owner_id: str, amenities: list):
-        from ..services.facade import facade
-        super().__init__(id, created_at, updated_at)
-        self.title = title
-        self.description = description
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
-        self.owner_id = owner_id
+    __tablename__ = 'places'  # Specify the table name for the Place model
+    
+    # Define the fields for the Place model
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
 
-        self.owner = facade.get_user(owner_id)
-        if self.owner is None:
-            raise ValueError(f"Owner with ID {owner_id} not found.")
-
-        self.amenities = []
-        for amenity in amenities:
-            amenity_obj = facade.get_amenity(amenity)
-            if amenity_obj is None:
-                raise ValueError(f"Amenity with ID {amenity} not found.")
-            self.amenities.append(amenity_obj)
-
-        self.reviews = []  # List to store related reviews
     def save(self):
         """Update the updated_at timestamp whenever the object is modified"""
         super().save()
